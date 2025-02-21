@@ -22,7 +22,10 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     ];    
  
-//carga las tareas en el DOM
+    let editingTaskId = null;
+    let taskCounter = tasks.length;
+ 
+    //carga las tareas en el DOM
     function loadTasks(){
         const taskList = document.getElementById('task-list');
         taskList.innerHTML = '';
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function(){
             `;
             taskList.appendChild(taskCard);
         });
+        console.log(tasks);
  
         //selecciona todos los botones que tengan la clase edit-task
         document.querySelectorAll('.edit-task').forEach(function(btnEdit){
@@ -59,16 +63,74 @@ document.addEventListener('DOMContentLoaded', function(){
             //definida mas abajo.
             btnDelete.addEventListener('click', handleDeleteTask);
         });
-        
+    
     }
  
     function handleEditTask(event){
-        alert('se presiono el boton con taskid ' + event.target.dataset.id);
+        // alert('se presiono el boton con taskid ' + event.target.dataset.id);
+        //obtener la tarea que el usuario selecciono
+        editingTaskId = parseInt(event.target.dataset.id);
+        //buscar la informacion de la tarea en el arreglo de tareas
+        const task = tasks.find(t => t.id === editingTaskId);
+        //cargar la tarea en el formulario
+        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-desc').value = task.description;
+        document.getElementById('due-date').value = task.due_date;
+        //cambiar el titulo del modal
+        document.getElementById('taskModalLabel').textContent = 'Edit task';
+        //abrir el modal
+        const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+        modal.show();
     }
  
     function handleDeleteTask(event){
-        alert('se presiono el boton delete con taskid ' + event.target.dataset.id);
+        const id = parseInt(event.target.dataset.id);
+        const taskIndex = tasks.findIndex( t => t.id === id);
+        tasks.splice(taskIndex,1);
+        loadTasks();
     }
+ 
+    document.getElementById('task-form').addEventListener('submit',function(e){
+        e.preventDefault();
+        const title = document.getElementById('task-title').value;
+        const description = document.getElementById('task-desc').value;
+        const dueDate = document.getElementById('due-date').value;
+ 
+        if(!editingTaskId){
+            //modo agregar tarea
+            taskCounter = taskCounter + 1;
+            const newTask = {
+                id: taskCounter,
+                title:title,
+                description: description,
+                due_date: dueDate
+            };
+            tasks.push(newTask);
+        }else{
+            //modo de edicion
+            let task = tasks.find( t => t.id === editingTaskId);
+            task.title = title;
+            task.description = description;
+            task.due_date = dueDate;
+        }
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+        modal.hide();
+        loadTasks();
+    });
+ 
+    document.getElementById('taskModal').addEventListener('show.bs.modal',function(){
+        if(!editingTaskId){
+            //solo si estamos en modo agregar
+            document.getElementById('task-form').reset();
+            document.getElementById('taskModalLabel').textContent = 'Add Task';
+        }
+        
+    });
+ 
+    document.getElementById('taskModal').addEventListener('hidden.bs.modal', function(){
+        editingTaskId = null;
+    })
  
  
     loadTasks();
