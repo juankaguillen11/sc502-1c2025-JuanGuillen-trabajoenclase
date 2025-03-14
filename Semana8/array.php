@@ -57,13 +57,14 @@ fclose($archivo);
 //leer archivo
 
 try {
-$archivoPorLeer = fopen("ejemplo.txt","r") or die ("No se puede abrir");
-while(!feof($archivoPorLeer)){
-    echo fgets($archivoPorLeer);
-}
-fclose($archivoPorLeer);
+    $archivoPorLeer = fopen("ejemplo.txt", "r") or die("No se puede abrir");
+    while (!feof($archivoPorLeer)) {
+        echo fgets($archivoPorLeer);
+    }
+    fclose($archivoPorLeer);
 } catch (Exception $e) {
-    echo "Error". $e->getMessage();
+    echo "Error" . $e->getMessage();
 }
+
 ?>
 
